@@ -26,6 +26,7 @@ public class JoinWindow extends JFrame implements KeyListener {
 	private static final Font FONT = new Font(Font.MONOSPACED, Font.BOLD, 60);
 	private static final int HEIGHT = 700;
 	private static final int WIDTH = 1024;
+	private final JTextField tfNickname;
 	private static final long serialVersionUID = 1L;
 	private static final String IMG_LOGO_PATH = "res/img/logo.png";
 	private static final String TITLE = "polePositionCR";
@@ -79,7 +80,7 @@ public class JoinWindow extends JFrame implements KeyListener {
 		lbColor.setLocation(70, 300);
 
 		// Create text field to user nickname
-		JTextField tfNickname = new JTextField();
+		tfNickname = new JTextField();
 		tfNickname.setSize(500, 65);
 		tfNickname.setFont(FONT);
 		tfNickname.setLocation(450, 361);
@@ -108,10 +109,15 @@ public class JoinWindow extends JFrame implements KeyListener {
 		int key = e.getKeyCode();
 		// Start game
 		if (key == KeyEvent.VK_ENTER) {
-			this.dispose();
 			try {
-				AppGameContainer appgc = new AppGameContainer(new GameWindow(TITLE));
+				// String nickname = tfNickname.getText();
+				// String color = String.valueOf(cbColors.getSelectedItem());
+				// ClientSocket.getInstance();
+				// ClientSocket.send(nickname + "," + color);
+				AppGameContainer appgc = new AppGameContainer(new GameWindow(
+						TITLE));
 				appgc.setDisplayMode(WIDTH, HEIGHT, false);
+				this.dispose();
 				appgc.start();
 			} catch (SlickException e2) {
 				e2.printStackTrace();

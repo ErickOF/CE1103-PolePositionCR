@@ -8,6 +8,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		try {
+			// Start game
 			MenuWindow menu = new MenuWindow();
 			menu.setVisible(true);
 		} catch (IOException e) {

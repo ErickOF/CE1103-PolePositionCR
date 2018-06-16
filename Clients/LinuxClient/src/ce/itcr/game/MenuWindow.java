@@ -141,8 +141,8 @@ public class MenuWindow extends JFrame implements KeyListener {
 			// If option was create game
 			if (option == 0) {
 				try {
-					this.dispose();
 					JoinWindow joinwindow = new JoinWindow();
+					this.dispose();
 					joinwindow.setVisible(true);
 				} catch (IOException e1) {
 					System.out.println(e1);

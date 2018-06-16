@@ -8,18 +8,26 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.state.*;
 
 public class Play extends BasicGameState{
+	public static int camH = 1500;
 	public static int roadW = 2000;
 	public static int segL = 200;
+	public static int trackSize = 3000;
+	public static int curveSize = 400/2;
+	
 	public static float camD = (float) 0.84;
 	public static int width = Game.width;
 	public static int height = Game.height;
+	
 	public Shape grassS;
 	public Shape rumbleS;
 	public Shape roadS;
+	
 	public int pos = 0;
 	public int playerX = 0;
+	
 	public double aceleracion = 0;
 	public static int velocidad = 100;
+	
 	public SpriteSheet carros;
 	public int dirrection = 1;
 	public int carColor = 0;
@@ -27,21 +35,27 @@ public class Play extends BasicGameState{
 	
 	public int car1;
 	public Image car1PNG;
-	public int carx1 = 512;
-	public int cary1 = 600;
-	public float scalecar1 = 3f;
+	public int carx1 = 0;
+	public int cary1 = 0;
+	public float scalecar1 = 1f;
+	//posicion del servidor
+	public int posCar1 = 20000;
 	
 	public int car2;
-	public int dirrectioncar2 = 1;
-	public int carColorcar2 = 3;
-	public float scalecar2 = 3f;
+	public Image car2PNG;
+	public int carx2 = 50;
+	public int cary2 = 0;
+	public float scalecar2 = 1f;
+	//posicion del servidor
+	public int posCar2 = 60000;
 	
 	public int car3;
-	public int dirrectioncar3 = 1;
-	public int carColorcar3 = 5;
-	public float scalecar3 = 3f;
-	
-	public Image arbolesPNG;
+	public Image car3PNG;
+	public int carx3 = 100;
+	public int cary3 = 0;
+	public float scalecar3 = 1f;
+	//posicion del servidor
+	public int posCar3 = 80000;
 	
 	
 	public Play(int state) {
@@ -52,7 +66,8 @@ public class Play extends BasicGameState{
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		Image carrosPNG = new Image("res/carros.png");
 		carros = new SpriteSheet(carrosPNG,42,43);
-		car1PNG = carros.getSubImage(1, 1);
+		
+		
 		
 	}
 
@@ -61,22 +76,18 @@ public class Play extends BasicGameState{
 		gc.setTargetFrameRate(60);
 		
 		Vector<Line> lines = new Vector<Line>();
-		for(int i=0;i<3000;i++) {
+		for(int i=0;i<trackSize;i++) {
 			Line line = new Line();
 		    line.z = i*segL;
 		    
-		    if(i>550 && i<950) line.curve=(float) -0.7;
+		    if(i>(trackSize*1/4)-curveSize && i<(trackSize*1/4)+curveSize) line.curve=(float) 0.7;
 		    
-		    if(i>1300 && i<1700) line.curve=(float) 0.7;
+		    if(i>(trackSize*2/4)-curveSize && i<(trackSize*2/4)+curveSize) line.curve=(float) 0.7;
 		    
-		    if(i>2050 && i<2450) line.curve=(float) 0.7;
+		    if(i>(trackSize*3/4)-curveSize && i<(trackSize*3/4)+curveSize) line.curve=(float) 0.7;
 		    
-		    if(i>2800 && i<200) line.curve=(float) 0.7;
+		    if(i>(trackSize*4/4)-curveSize && i<(trackSize*4/4)+curveSize) line.curve=(float) 0.7;
 		    
-		    //if (Math.floorMod(i, 20)==0) {
-		    	line.spriteX=-2.5;
-		    	line.sprite=arbolesPNG;
-		    //	}
 		    
 		    
 		    lines.add(line);
@@ -101,7 +112,7 @@ public class Play extends BasicGameState{
 				t= N*segL;
 			else 
 				t=0;
-			l.project(playerX - x, 1500, pos - t);
+			l.project(playerX - x, camH, pos - t);
 			x+=dx;
 			dx+=l.curve;
 			
@@ -143,31 +154,28 @@ public class Play extends BasicGameState{
 		}
 		
 		
-		Image bg2= new Image("res/img/bg.png");
-		g.drawImage(bg2,0,0);
-		Image bg3= new Image("res/img/bg.png");
-		g.drawImage(bg3,768,0);
+		//Image bg2= new Image("res/img/bg.png");
+		//g.drawImage(bg2,0,0);
+		//Image bg3= new Image("res/img/bg.png");
+		//g.drawImage(bg3,768,0);
 		
+		//car1PNG = carros.getSubImage(1, 1);
+		//car2PNG = carros.getSubImage(1, 3);
+		//car3PNG = carros.getSubImage(1, 7);
 
 		
-		car1PNG.draw(carx1, cary1, scalecar1);
+		//car1PNG.draw(carx1, cary1, scalecar1);
+		//car1PNG.draw(carx2, cary2, scalecar2);
+		//car1PNG.draw(carx3, cary3, scalecar3);
 		
+		//jugador 1 2 y 3
+		carros.getSubImage(1, 1).draw(carx1, cary1, scalecar1);
+		carros.getSubImage(1, 3).draw(carx2, cary2, scalecar2);
+		carros.getSubImage(1, 5).draw(carx3, cary3, scalecar3);
+		
+		//jugador principal
 		carros.getSubImage(dirrection, carColor).draw(width/2-(3*42/2), height-(43*3),3f);
 		
-		
-		int startPos1X = width/3-(3*42/2);
-		int startPos2X = width/3+(3*42/2);
-		int startPos3X = width/3-(3*42/2);
-		
-		int startPos1Y = height-(43*3);
-		int startPos2Y = height-(43*3);
-		int startPos3Y = height-(43*3);
-		
-		//carros.getSubImage(dirrectioncar1, carColorcar1).draw(startPos1X, startPos1Y,3f);
-		
-		//carros.getSubImage(dirrectioncar2, carColorcar2).draw(startPos2X, startPos2Y,3f);
-		
-		//carros.getSubImage(dirrectioncar3, carColorcar3).draw(startPos3X, startPos3Y,3f);
 		
 		
 		
@@ -187,7 +195,10 @@ public class Play extends BasicGameState{
 			}
 			System.out.print("Posicion: " + pos + "\n");
 		}
-		
+		if(input.isKeyDown(Input.KEY_DOWN)) {
+			dirrection = 1;
+			pos-=200;
+		}
 		if((!input.isKeyDown(Input.KEY_UP)&&aceleracion!=0)||(playerX>1950||playerX<-1950)) {
 			dirrection = 1;
 			System.out.println("deteniendo!!!");
@@ -202,24 +213,24 @@ public class Play extends BasicGameState{
 			}
 			System.out.print("Posicion: " + pos + "\n");
 		}
+		
 		if(input.isKeyDown(Input.KEY_RIGHT)&&playerX<2000) {
 			playerX+=50;
 			dirrection = 2;
-			carx1-=50/scalecar1;
+			//carx1-=30*scalecar1;
 		}
 			
 		if(input.isKeyDown(Input.KEY_LEFT)&&playerX>-2000) {
 			playerX-=50;
 			dirrection = 0;
-			carx1+=50/scalecar1;
+			//carx1+=30*scalecar1;
 		}
 		if(input.isKeyDown(Input.KEY_SPACE)) {
 			//Shape disparo = new Shape();
 		}
-		
+		//pruebas de carros
 		if(input.isKeyDown(Input.KEY_W)) {
-			cary1-=20;
-			scalecar1-=0.2;
+			posCar1+=100;
 			
 			//car1PNG.draw(carx1, cary1, scalecar1);
 		}
@@ -229,6 +240,49 @@ public class Play extends BasicGameState{
 			
 			//car1PNG.draw(carx1, cary1, scalecar1);
 		}
+		//imprimir carro 1
+		if(Math.abs(pos-posCar1)<7000) {
+			if(pos<posCar1) {
+				System.out.println("PosCar1: " + posCar1);
+				cary1=350+350*(7000-Math.abs(pos-posCar1))/7000;
+				scalecar1=3.2f*(7000-Math.abs(pos-posCar1))/6000;
+				carx1=width/2;
+			}
+			if(posCar1<pos) {
+				cary1=0;
+				carx1=0;
+				scalecar1=1f;
+			}
+		}
+		//imprimir carro 2
+		if(Math.abs(pos-posCar2)<7000) {
+			if(pos<posCar2) {
+				System.out.println("PosCar2: " + posCar2);
+				cary2=350+350*(7000-Math.abs(pos-posCar2))/7000;
+				scalecar2=3.2f*(7000-Math.abs(pos-posCar2))/6000;
+				carx2=width/2;
+			}
+			if(posCar2<pos) {
+				cary2=0;
+				carx2=0;
+				scalecar2=1f;
+			}
+		}
+		//imprimir carro 3
+		if(Math.abs(pos-posCar3)<7000) {
+			if(pos<posCar3) {
+				System.out.println("PosCar3: " + posCar3);
+				cary3=350+350*(7000-Math.abs(pos-posCar3))/7000;
+				scalecar3=3.2f*(7000-Math.abs(pos-posCar3))/6000;
+				carx3=width/2;
+			}
+			if(posCar3<pos) {
+				cary3=0;
+				carx3=0;
+				scalecar3 = 1f;
+			}
+		}
+		
 			
 	}
 
@@ -242,7 +296,7 @@ public class Play extends BasicGameState{
 
 		float x,y,z; //3d center of line
 		float X,Y,W; //screen coord
-		float curve,scale,clip;
+		float curve,scale;
 		double spriteX;
 		Image sprite;
 

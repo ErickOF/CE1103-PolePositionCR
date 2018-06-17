@@ -11,12 +11,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.SlickException;
 
+import ce.itcr.socket.ClientSocket;
 import ce.itcr.sound.MusicPlayer;
 
 public class JoinWindow extends JFrame implements KeyListener {
@@ -110,15 +112,21 @@ public class JoinWindow extends JFrame implements KeyListener {
 		// Start game
 		if (key == KeyEvent.VK_ENTER) {
 			try {
-				// String nickname = tfNickname.getText();
-				// String color = String.valueOf(cbColors.getSelectedItem());
-				// ClientSocket.getInstance();
-				// ClientSocket.send(nickname + "," + color);
-				AppGameContainer appgc = new AppGameContainer(new GameWindow(
-						TITLE));
-				appgc.setDisplayMode(WIDTH, HEIGHT, false);
-				this.dispose();
-				appgc.start();
+				String nickname = tfNickname.getText();
+				String color = String.valueOf(cbColors.getSelectedItem());
+				String msg = nickname + "," + color;
+				System.out.println(msg);
+				ClientSocket.getInstance();
+				if (ClientSocket.send(msg).equalsIgnoreCase("")) {
+					AppGameContainer appgc = new AppGameContainer(
+							new GameWindow(TITLE));
+					appgc.setDisplayMode(WIDTH, HEIGHT, false);
+					this.dispose();
+					appgc.start();
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Servidor no disponible");
+				}
 			} catch (SlickException e2) {
 				e2.printStackTrace();
 			}

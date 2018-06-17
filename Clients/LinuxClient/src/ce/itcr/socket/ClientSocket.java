@@ -10,39 +10,50 @@ import java.net.UnknownHostException;
 public class ClientSocket {
 	// CONSTANTS
 	private static ClientSocket clientSocket;
-	private static final int PORT = 12000;
+	private static final int PORT = 10000;
 	private static Socket client;
-	private static final String LOCALHOST = "localhost";
+	private static final String LOCALHOST = "127.0.0.1";
 
-	private ClientSocket() {
-		try {
-			client = new Socket(LOCALHOST, PORT);
-		} catch (UnknownHostException e) {
-			System.out.println("Unknown host");
-		} catch (IOException e) {
-			System.out.println("");
-		}
+	private ClientSocket() throws UnknownHostException, IOException {
+		client = new Socket(LOCALHOST, PORT);
 	}
 
 	public static ClientSocket getInstance() {
 		if (clientSocket == null) {
-			clientSocket = new ClientSocket();
+			try {
+				clientSocket = new ClientSocket();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e2) {
+				e2.printStackTrace();
+			}
 		}
 		return clientSocket;
 	}
 
-	public static boolean send(String msg) {
+	public static String send(String msg) {
+		String instruction = "";
 		try {
 			DataOutputStream outToServer = new DataOutputStream(
 					client.getOutputStream());
 			outToServer.writeBytes(msg);
 			BufferedReader inFromServer = new BufferedReader(
 					new InputStreamReader(client.getInputStream()));
-			String modifiedSentence = inFromServer.readLine();
-			System.out.println(modifiedSentence);
-			return true;
+			Thread.sleep(10);
+			if (inFromServer.ready()) {
+				char[] serverMsg = new char[1024];
+				inFromServer.read(serverMsg);
+				for (int i = 0; i < serverMsg.length; i++) {
+					instruction = instruction + serverMsg[i];
+				}
+			} else {
+				return instruction;
+			}
+			return instruction;
 		} catch (IOException e) {
-			return false;
+			return instruction;
+		} catch (InterruptedException e2) {
+			return instruction;
 		}
 	}
 
@@ -50,7 +61,7 @@ public class ClientSocket {
 		try {
 			client.close();
 			return true;
-		} catch (IOException e1) {
+		} catch (IOException e) {
 			return false;
 		}
 	}

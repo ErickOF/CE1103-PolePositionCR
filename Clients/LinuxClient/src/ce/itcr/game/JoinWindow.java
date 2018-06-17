@@ -117,7 +117,7 @@ public class JoinWindow extends JFrame implements KeyListener {
 				String msg = nickname + "," + color;
 				System.out.println(msg);
 				ClientSocket.getInstance();
-				if (ClientSocket.send(msg).equalsIgnoreCase("")) {
+				if (!ClientSocket.send(msg).equalsIgnoreCase("")) {
 					AppGameContainer appgc = new AppGameContainer(
 							new GameWindow(TITLE));
 					appgc.setDisplayMode(WIDTH, HEIGHT, false);

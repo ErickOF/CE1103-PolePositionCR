@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 public class ClientSocket {
 	// CONSTANTS
 	private static ClientSocket clientSocket;
-	private static final int PORT = 10000;
+	private static final int PORT = 10007;
 	private static Socket client;
 	private static final String LOCALHOST = "127.0.0.1";
 

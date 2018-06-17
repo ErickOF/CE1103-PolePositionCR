@@ -5,10 +5,14 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_ttf.h>
 
+#include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "constants.h"
+#include "server.h"
 
 // Game Screen
 ALLEGRO_DISPLAY *display = NULL;
@@ -38,6 +42,9 @@ ALLEGRO_COLOR WHITE;
 ALLEGRO_FONT *font = NULL;
 ALLEGRO_FONT *font_game = NULL;
 ALLEGRO_FONT *font_players = NULL;
+
+// Server
+struct Server* server;
 
 bool play;
 bool wait;
@@ -156,6 +163,9 @@ bool init_all() {
     YELLOW = al_map_rgb(255, 255, 0);
     WHITE = al_map_rgb(255, 255, 255);
 
+    // Init server
+    server = (struct Server*)malloc(sizeof(struct Server));
+
 	return true;
 }
 
@@ -176,6 +186,8 @@ void destroy_all() {
 	al_destroy_bitmap(img_purple_player);
 	al_destroy_bitmap(img_red_player);
 	al_destroy_bitmap(img_white_player);
+
+	close_connection(server);
 }
 
 // Load all images
@@ -375,6 +387,34 @@ void show_mainwindow() {
 		                break;
 		            // When enter was pressed, go to waiting window
 		            case ALLEGRO_KEY_ENTER:
+		            	if (!start_connection(server)){
+		            		al_show_native_message_box(display, "Error",
+		            							"Server Error",
+												"Error to start server",
+												NULL,
+												ALLEGRO_MESSAGEBOX_ERROR);
+							break;
+						}
+						if (!start_binding(server)){
+		            		al_show_native_message_box(display, "Error",
+		            							"Server Error",
+												"Error to bind",
+												NULL,
+												ALLEGRO_MESSAGEBOX_ERROR);
+							break;
+						}
+						if (!start_listen(server)) {
+		            		al_show_native_message_box(display, "Error",
+		            							"Server Error",
+												"Error to start listener",
+												NULL,
+												ALLEGRO_MESSAGEBOX_ERROR);
+							break;
+						}
+
+						pthread_t t_server;
+					    pthread_create(&t_server, NULL, start, (void*)server);
+					    pthread_join(t_server, NULL);
 		                menu = false;
 		                wait = true;
 		            	break;

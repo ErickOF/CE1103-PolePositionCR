@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define PORT 10008
+#define PORT 10009
 
 struct Server {
 	int sockfd;
@@ -17,6 +17,12 @@ struct Server {
 	socklen_t addr_size;
 	pid_t childpid;
 	bool started;
+	bool listening;
+};
+
+struct Data {
+	struct Server *server;
+	int pos;
 };
 
 bool start_connection(struct Server *server) {
@@ -34,6 +40,7 @@ bool start_connection(struct Server *server) {
 	server->address.sin_port = htons(PORT);
 	server->address.sin_addr.s_addr = inet_addr("127.0.0.1");
 	server->started = true;
+	server->listening = true;
 	return true;
 }
 
@@ -45,44 +52,63 @@ bool start_listen(struct Server *server) {
 	return listen(server->sockfd, 4) == 0;
 }
 
-void* start(void* arg) {
-	struct Server *server = (struct Server*) arg;
+void* listen_client(void* arg) {
+	struct Data *data = (struct Data*) arg;
+	struct Server *server = data->server;
+	int i = data->pos;
 	char buffer[1024];
-	printf("Iniciado\n");
-	while (server->started) {
-		int newClient = accept(server->sockfd, (struct sockaddr*)&(server->clientsAddress), &(server->addr_size));
-		if (newClient < 0) {
+	//close(server->sockfd);
+	while (server->listening) {
+		if (recv(server->clients[i], buffer, 1024, 0) >= 0) {
+			printf("Client %s\n", buffer);
+			if (send(server->clients[i], "rcv\n", strlen("rcv"), 0) < 0) {
+				printf("Error to send msg\n");
+			} else {
+				printf("Msg sended\n");
+			}
+		} else {
 			break;
 		}
-		
-		int i = 0;
-		for (; i < 4; ++i){
-			if(server->clients[i] == - 1){
-				server->clients[i] = newClient;
-				break;
+	}
+	return NULL;
+}
+
+void* start(void* arg) {
+	struct Server *server = (struct Server*) arg;
+	printf("Iniciado\n");
+	while (server->started) {
+		printf("Listen\n");
+		int newClient = accept(server->sockfd, (struct sockaddr*)&(server->clientsAddress),
+								&(server->addr_size));
+		if (newClient >= 0) {
+			int i = 0;
+			for (; i < 4; ++i){
+				if(server->clients[i] == - 1){
+					server->clients[i] = newClient;
+					break;
+				}
 			}
-		}
-		if ((server->childpid = fork()) == 0) {
-			close(server->sockfd);
-			while (1) {
-				recv(server->clients[i], buffer, 1024, 0);
-				printf("Client %s\n", buffer);
-				if (send(server->clients[i], "rcv\n", strlen("rcv"), 0) < 0) {
-					printf("Error to send msg\n");
-				} else {
-					printf("Msg sended\n");
-				}				
-			}
+			struct Data data;
+			data.server = server;
+			data.pos = i;
+			pthread_t client_t;
+			pthread_create(&client_t, NULL, listen_client, (void*)&data);
+			pthread_join(client_t, NULL);
 		}
 	}
 	
+	printf("End\n");
+
 	int i = 0;
 	for (; i < 4; ++i){
 		close(server->clients[i]);
 	}
+
 	free(server);
 	return NULL;
 }
+
 void close_connection(struct Server* server) {
+	server->listening = false;
 	server->started = false;
 }

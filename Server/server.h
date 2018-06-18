@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 
 // PORT to listen
-#define PORT 9003
+#define PORT 9005
 
 // Struct to Server
 struct Server {

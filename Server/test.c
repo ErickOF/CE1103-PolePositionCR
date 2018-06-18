@@ -1,33 +1,47 @@
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <string.h>
 
-#include "server.h"
+int count_words(char str[]) {
+	printf("Count\n");
+	int count = 0;
+	char *pch;
+	pch = strtok(str,",");
+	while (pch != NULL) {
+		count++;
+		pch = strtok(NULL, ",");
+    }
+    return count;
+}
+
+void split_str(char str[]) {
+    int count = count_words(str);
+
+    printf("Size %d\n", count);
+
+    char *words[count];
+    for (int i = 0; i < count; ++i) {
+        words[i] = (char*) malloc(30*sizeof(char));
+    }
+  
+    char *pch;
+    pch = strtok(str,",");
+  
+    while (pch != NULL) {
+        printf("%s\n",pch);
+        pch = strtok(NULL, ",");
+    }
+
+    for (int i = 0; i < count; ++i) {
+        printf("%s\n", words[i]);
+    }
+
+    for (int i = 0; i < count; ++i){
+        free(words[i]);
+    }
+}
 
 int main() {
-	struct Server* server = (struct Server*)malloc(sizeof(struct Server));
-	if (!start_connection(server)){
-		printf("Error al iniciar servidor\n");
-		free(server);
-		return -1;
-	}
-	if (!start_binding(server)){
-		printf("Error de enlace\n");
-		free(server);
-		return -1;
-	}
-	if (!start_listen(server)) {
-		printf("Error al escuchar\n");
-		free(server);
-		return -1;
-	}
-
-	pthread_t t_server;
-    pthread_create(&t_server,NULL, start, (void*)server);
-    pthread_join(t_server, NULL);
-	
-	close_connection(server);
-	
-	printf("GG\n");
+	char str[] = "ErickOF,red";
+	split_str(str);
 }

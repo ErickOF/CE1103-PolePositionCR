@@ -10,8 +10,10 @@ import java.io.IOException;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import ce.itcr.errors.ColorException;
 import ce.itcr.sound.MusicPlayer;
 
 public class MenuWindow extends JFrame implements KeyListener {
@@ -146,6 +148,8 @@ public class MenuWindow extends JFrame implements KeyListener {
 					joinwindow.setVisible(true);
 				} catch (IOException e1) {
 					System.out.println(e1);
+				} catch (ColorException e2) {
+					JOptionPane.showMessageDialog(null, "Server not available");
 				}
 			}
 			// If option was exit

@@ -55,8 +55,6 @@ int waiting = 0;
 
 //********************************TEST********************************
 int num_players = 4;
-char *nicknames[4] = {"Allan", "Erick", "Christopher", "Marco"};
-char *colors[4] = {"blue", "purple", "red", "white"};
 //********************************TEST********************************
 
 // This function start all components
@@ -248,38 +246,45 @@ void update_players_window() {
 	al_draw_textf(font, text_color, WINDOW_WIDTH - 120, 20,
 				ALLEGRO_ALIGN_CENTRE, "%d", (int)(wait_time/2.5));
 
+	// Temp image
 	ALLEGRO_BITMAP *img = NULL;
-
+	// Current player number
 	int i = 0;
 	for (; i < num_players; ++i) {
-
-		ALLEGRO_COLOR text_color;
-
-		if (strcmp(colors[i], "blue") == 0) {
-			text_color = BLUE;
-			img = img_blue_player;
+		// If player is connected
+		if (strcmp(server->players[i], "") != 0) {
+			// Current text color
+			ALLEGRO_COLOR text_color;
+			// Verify the color of the player then set text color
+			// and icon
+			if (strcmp(server->colors[i], "Blue") == 0) {
+				text_color = BLUE;
+				img = img_blue_player;
+			}
+			else if (strcmp(server->colors[i], "Purple") == 0) {
+				text_color = PURPLE;
+				img = img_purple_player;
+			}
+			else if (strcmp(server->colors[i], "Red") == 0) {
+				text_color = RED;
+				img = img_red_player;
+			}
+			else {
+				text_color = WHITE;
+				img = img_white_player;
+			}
+			// Draw icon
+			al_draw_bitmap(img, POSX_IMGS_WAIT, POSY_WAIT[i][0], 0);
+			// Draw player info
+			al_draw_textf(font_players, text_color, POSX_TEXTS_WAIT,
+						POSY_WAIT[i][0], ALLEGRO_ALIGN_CENTRE,
+						"Player %d", i + 1);
+			al_draw_text(font_players, text_color, POSX_TEXTS_WAIT,
+						POSY_WAIT[i][1], ALLEGRO_ALIGN_CENTRE,
+						server->players[i]);
 		}
-		else if (strcmp(colors[i], "purple") == 0) {
-			text_color = PURPLE;
-			img = img_purple_player;
-		}
-		else if (strcmp(colors[i], "red") == 0) {
-			text_color = RED;
-			img = img_red_player;
-		}
-		else {
-			text_color = WHITE;
-			img = img_white_player;
-		}
-
-		al_draw_bitmap(img, POSX_IMGS_WAIT, POSY_WAIT[i][0], 0);
-		al_draw_textf(font_players, text_color, POSX_TEXTS_WAIT,
-					POSY_WAIT[i][0], ALLEGRO_ALIGN_CENTRE,
-					"Player %d", i + 1);
-		al_draw_text(font_players, text_color, POSX_TEXTS_WAIT,
-					POSY_WAIT[i][1], ALLEGRO_ALIGN_CENTRE,
-					nicknames[i]);
 	}
+	// Delete temp image
 	img = NULL;
 	al_destroy_bitmap(img);
 
@@ -291,6 +296,7 @@ void update_players_window() {
 	if (waiting == 4) waiting = 0;
 }
 
+// Update the graphics of the game window
 void update_game_window() {
 	// Clear window
 	al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -298,52 +304,57 @@ void update_game_window() {
 	// Draw all text
 	al_draw_text(font, WHITE, WINDOW_WIDTH/2, 10,
 				ALLEGRO_ALIGN_CENTRE, "PLAY");
-
+	// Temp image
 	ALLEGRO_BITMAP *img = NULL;
-
+	// Current player number
 	int i = 0;
 	for (; i < num_players; ++i) {
-		// Draw division lines
-		al_draw_line(WINDOW_WIDTH*i/num_players, WINDOW_HEIGHT - 100,
-				WINDOW_WIDTH*i/num_players, WINDOW_HEIGHT, WHITE, 2);
-
-		ALLEGRO_COLOR text_color;
-
-		if (strcmp(colors[i], "blue") == 0) {
-			text_color = BLUE;
-			img = img_blue_player;
+		// If player is connected
+		if (strcmp(server->players[i], "")) {
+			// Draw division lines
+			al_draw_line(WINDOW_WIDTH*i/num_players, WINDOW_HEIGHT - 100,
+					WINDOW_WIDTH*i/num_players, WINDOW_HEIGHT, WHITE, 2);
+			// Current text color
+			ALLEGRO_COLOR text_color;
+			// Verify the color of the player then set text color
+			// and icon
+			if (strcmp(server->colors[i], "Blue") == 0) {
+				text_color = BLUE;
+				img = img_blue_player;
+			}
+			else if (strcmp(server->colors[i], "Purple") == 0) {
+				text_color = PURPLE;
+				img = img_purple_player;
+			}
+			else if (strcmp(server->colors[i], "Red") == 0) {
+				text_color = RED;
+				img = img_red_player;
+			}
+			else {
+				text_color = WHITE;
+				img = img_white_player;
+			}
+			// Draw icon
+			al_draw_bitmap(img, POSX_GAME[i][0], POSY_IMGS_GAME, 0);
+			// Draw player info
+			al_draw_textf(font_game, text_color, POSX_GAME[i][1],
+						POSY_TEXT_PLAYER_GAME, ALLEGRO_ALIGN_CENTRE,
+						"Player %d", i + 1);
+			al_draw_text(font_game, text_color, POSX_GAME[i][1],
+						POSY_TEXT_NICKNAME_GAME, ALLEGRO_ALIGN_CENTRE,
+						server->players[i]);
+			al_draw_textf(font_game, text_color, POSX_GAME[i][1],
+						POSY_TEXT_SCORE_GAME, ALLEGRO_ALIGN_CENTRE,
+						"Score %d", 0);
+			al_draw_textf(font_game, text_color, POSX_GAME[i][1],
+						POSY_TEXT_LIFES_GAME, ALLEGRO_ALIGN_CENTRE,
+						"Lifes %d", 2);
 		}
-		else if (strcmp(colors[i], "purple") == 0) {
-			text_color = PURPLE;
-			img = img_purple_player;
-		}
-		else if (strcmp(colors[i], "red") == 0) {
-			text_color = RED;
-			img = img_red_player;
-		}
-		else {
-			text_color = WHITE;
-			img = img_white_player;
-		}
-		
-		al_draw_bitmap(img, POSX_GAME[i][0], POSY_IMGS_GAME, 0);
-		al_draw_textf(font_game, text_color, POSX_GAME[i][1],
-					POSY_TEXT_PLAYER_GAME, ALLEGRO_ALIGN_CENTRE,
-					"Player %d", i + 1);
-		al_draw_text(font_game, text_color, POSX_GAME[i][1],
-					POSY_TEXT_NICKNAME_GAME, ALLEGRO_ALIGN_CENTRE,
-					nicknames[i]);
-		al_draw_textf(font_game, text_color, POSX_GAME[i][1],
-					POSY_TEXT_SCORE_GAME, ALLEGRO_ALIGN_CENTRE,
-					"Score %d", 0);
-		al_draw_textf(font_game, text_color, POSX_GAME[i][1],
-					POSY_TEXT_LIFES_GAME, ALLEGRO_ALIGN_CENTRE,
-					"Lifes %d", 2);
 	}
-
+	// Delete image
 	img = NULL;
 	al_destroy_bitmap(img);
-
+	// Draw division lines
 	al_draw_line(WINDOW_WIDTH*i/num_players, WINDOW_HEIGHT - 100,
 				WINDOW_WIDTH, WINDOW_HEIGHT, WHITE, 2);
 	al_draw_line(0, WINDOW_HEIGHT - 100, WINDOW_WIDTH,
@@ -387,6 +398,7 @@ void show_mainwindow() {
 		                break;
 		            // When enter was pressed, go to waiting window
 		            case ALLEGRO_KEY_ENTER:
+		            	// Verify socket creation
 		            	if (!start_connection(server)){
 		            		al_show_native_message_box(display, "Error",
 		            							"Server Error",
@@ -395,6 +407,7 @@ void show_mainwindow() {
 												ALLEGRO_MESSAGEBOX_ERROR);
 							break;
 						}
+						// Verify socket connection
 						if (!start_binding(server)){
 		            		al_show_native_message_box(display, "Error",
 		            							"Server Error",
@@ -403,6 +416,7 @@ void show_mainwindow() {
 												ALLEGRO_MESSAGEBOX_ERROR);
 							break;
 						}
+						// Verify if the server is listening
 						if (!start_listen(server)) {
 		            		al_show_native_message_box(display, "Error",
 		            							"Server Error",
@@ -411,10 +425,10 @@ void show_mainwindow() {
 												ALLEGRO_MESSAGEBOX_ERROR);
 							break;
 						}
-
+						// Start to listen
 						pthread_t t_server;
 					    pthread_create(&t_server, NULL, start, (void*)server);
-					    pthread_join(t_server, NULL);
+					    pthread_detach(t_server);
 		                menu = false;
 		                wait = true;
 		            	break;
@@ -439,7 +453,6 @@ void show_mainwindow() {
 void show_players_window() {
 	// Indicates when graphics are drawn
 	bool redraw = false;
-
 	// Run until the time runs out, four players are connected or
 	// close the window
 	while ((wait_time >= 0) && wait) {
@@ -538,7 +551,7 @@ int main() {
 	// Call mainwindow
 	show_mainwindow();
 	// Call waiting window
-	wait_time = 15;
+	wait_time = 150;
 	show_players_window();
 	// Call game window
 	show_game_window();

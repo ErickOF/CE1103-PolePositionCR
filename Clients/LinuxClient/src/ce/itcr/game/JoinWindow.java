@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.SlickException;
 
+import ce.itcr.errors.ColorException;
 import ce.itcr.socket.ClientSocket;
 import ce.itcr.sound.MusicPlayer;
 
@@ -37,11 +38,17 @@ public class JoinWindow extends JFrame implements KeyListener {
 	private final JComboBox<String> cbColors;
 
 	/***************************** TEST *****************************/
-	private static final String colors[] = { "Blue", "Purple", "Red", "White" };
+	private String colors[];
 
 	/***************************** TEST *****************************/
 
-	public JoinWindow() throws IOException {
+	/**
+	 * Class constructor
+	 * 
+	 * @throws IOException
+	 * @throws ColorException
+	 */
+	public JoinWindow() throws IOException, ColorException {
 		// Setup Window
 		this.setTitle(TITLE);
 		this.setSize(WIDTH, HEIGHT);
@@ -88,6 +95,11 @@ public class JoinWindow extends JFrame implements KeyListener {
 		tfNickname.setLocation(450, 361);
 		tfNickname.addKeyListener(this);
 
+		// Get colors from server
+		if (!getColores()) {
+			throw new ColorException("");
+		}
+
 		// Create Combo Box to show colors
 		cbColors = new JComboBox<String>(colors);
 		cbColors.setSize(300, 65);
@@ -107,25 +119,55 @@ public class JoinWindow extends JFrame implements KeyListener {
 		addKeyListener(this);
 	}
 
+	/**
+	 * This method send request to the server to get available colors
+	 * 
+	 * @return
+	 */
+	private boolean getColores() {
+		// Get socket instance
+		ClientSocket.getInstance();
+		// Send request to server and get the respond
+		String response = ClientSocket.send("get,,,");
+		// Verify if request was done correctly
+		if (response.equalsIgnoreCase("")) {
+			return false;
+		}
+		// Get and save colors
+		colors = response.split(",");
+		System.out.println(colors.length);
+		return true;
+	}
+
+	/*
+	 * This method detect key pressed events
+	 * 
+	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+	 */
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
 		// Start game
 		if (key == KeyEvent.VK_ENTER) {
 			try {
+				// Get values to send
 				String nickname = tfNickname.getText();
 				String color = String.valueOf(cbColors.getSelectedItem());
-				String msg = nickname + "," + color;
-				System.out.println(msg);
+				// Create request
+				String request = " new," + nickname + "," + color + ",";
+				System.out.println(request);
+				// Get socket instance
 				ClientSocket.getInstance();
-				if (!ClientSocket.send(msg).equalsIgnoreCase("")) {
+				// Send request to server and verify if request was done
+				// correctly
+				if (!ClientSocket.send(request).equalsIgnoreCase("")) {
+					// Call game window
 					AppGameContainer appgc = new AppGameContainer(
 							new GameWindow(TITLE));
 					appgc.setDisplayMode(WIDTH, HEIGHT, false);
 					this.dispose();
 					appgc.start();
 				} else {
-					JOptionPane.showMessageDialog(null,
-							"Servidor no disponible");
+					JOptionPane.showMessageDialog(null, "Server not available");
 				}
 			} catch (SlickException e2) {
 				e2.printStackTrace();
@@ -138,9 +180,19 @@ public class JoinWindow extends JFrame implements KeyListener {
 		}
 	}
 
+	/*
+	 * This method get key released events
+	 * 
+	 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+	 */
 	public void keyReleased(KeyEvent arg0) {
 	}
 
+	/*
+	 * This method get key typed events
+	 * 
+	 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+	 */
 	public void keyTyped(KeyEvent arg0) {
 	}
 }

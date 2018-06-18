@@ -94,6 +94,13 @@ char* get_avaible_colors(struct Server *server) {
 	return avaible_colors;
 }
 
+bool check_color(struct Server *server, char* color) {
+	for (int i=0; i < 4; i++) {
+		if (strcmp(server->colors[i], color) == 0) return false;
+	}
+	return true;
+}
+
 // Listen clients
 void* listen_client(void* arg) {
 	// Server information
@@ -105,7 +112,8 @@ void* listen_client(void* arg) {
 	//close(server->sockfd);
 	while (server->listening) {
 		// Wait for msg
-		if (recv(server->clients[i], buffer, 1024, 0) >= 3) {
+		int size = recv(server->clients[i], buffer, 1024, 0);
+		if (size >= 3) {
 			printf("Client %s\n", buffer);
 			// Create msg container
 			char *words[4];
@@ -134,20 +142,31 @@ void* listen_client(void* arg) {
 				printf("Msg: %s, status: %d\n", colors, status);
 		    }
 		    else if (strcmp(words[0], "new") == 0) {
-			    // Config players
-			    server->players[i] = words[1];
-			    server->colors[i] = words[2];
-			    // Free memory
-			    for (int j = 0; j < 4; ++j) {
-			    	words[j] = NULL;
-			        free(words[j]);
-			    }
-			    int status = send(server->clients[i], "rcv", strlen("rcv"), 0);
-			    printf("Msg: rcv, status: %d\n", status);
-			} else {
+		    	// Check if color is avaible
+		    	if (check_color(server, words[2])) {
+				    // Config players
+				    server->players[i] = words[1];
+				    server->colors[i] = words[2];
+				    // Free memory
+				    for (int j = 0; j < 4; ++j) {
+				    	words[j] = NULL;
+				        free(words[j]);
+				    }
+				    int status = send(server->clients[i], "rcv\0", strlen("rcv\0"), 0);
+				    printf("Msg: rcv, status: %d\n", status);
+				} else {
+		    		// Get avaible colors
+					char* colors = get_avaible_colors(server);
+		    		// Send colors to user
+		    		int status = send(server->clients[i], colors, strlen(colors), 0);
+					printf("Msg: %s, status: %d\n", colors, status);
+				}
+			}
+			else {
 				printf("Unknown\n");
 			}
 		}
+		memset(buffer, 0, 1024*sizeof(char));
 	}
 	return NULL;
 }

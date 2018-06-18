@@ -44,7 +44,9 @@ public class ClientSocket {
 				char[] serverMsg = new char[1024];
 				inFromServer.read(serverMsg);
 				for (int i = 0; i < serverMsg.length; i++) {
-					instruction = instruction + serverMsg[i];
+					if (serverMsg[i] != '\u0000') {
+						instruction = instruction + serverMsg[i];
+					}
 				}
 			} else {
 				System.out.println("Not response");

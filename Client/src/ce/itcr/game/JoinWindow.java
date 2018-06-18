@@ -134,7 +134,11 @@ public class JoinWindow extends JFrame implements KeyListener {
 			return false;
 		}
 		// Get and save colors
-		colors = response.split(",");
+		String tempColors[] = response.split(",");
+		colors = new String[tempColors.length - 1];
+		for (int i = 0; i < colors.length; i++) {
+			colors[i] = tempColors[i];
+		}
 		System.out.println(colors.length);
 		return true;
 	}
@@ -154,23 +158,31 @@ public class JoinWindow extends JFrame implements KeyListener {
 				String color = String.valueOf(cbColors.getSelectedItem());
 				// Create request
 				String request = " new," + nickname + "," + color + ",";
-				System.out.println(request);
 				// Get socket instance
 				ClientSocket.getInstance();
 				// Send request to server and verify if request was done
 				// correctly
-				if (!ClientSocket.send(request).equalsIgnoreCase("")) {
+				String response = ClientSocket.send(request);
+				System.out.println(response + "-" + response.length());
+				System.out.println(response == "rcv");
+				System.out.println(response.equals("rcv"));
+				System.out.println(response.length());
+				if (response.equals("rcv")) {
 					// Call game window
 					AppGameContainer appgc = new AppGameContainer(
 							new GameWindow(TITLE));
 					appgc.setDisplayMode(WIDTH, HEIGHT, false);
 					this.dispose();
 					appgc.start();
-				} else {
+				} // If response fail
+				else if (response.equalsIgnoreCase("")) {
 					JOptionPane.showMessageDialog(null, "Server not available");
+				} // Incorrect selected color
+				else {
+					colors = response.split(",");
 				}
 			} catch (SlickException e2) {
-				e2.printStackTrace();
+				System.out.println("Game Window Error");
 			}
 		}
 		// Close window

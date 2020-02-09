@@ -6,7 +6,6 @@ public class Hueco extends Sprite implements Poder {
 
 	public Hueco(Image image, Integer position, Boolean activo) {
 		super(image, position, activo);
-		// TODO Auto-generated constructor stub
 	}
 
 	public void implementar(Jugador objetivo) {

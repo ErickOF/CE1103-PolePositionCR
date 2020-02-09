@@ -128,7 +128,7 @@ public class JoinWindow extends JFrame implements KeyListener {
 		// Get socket instance
 		ClientSocket.getInstance();
 		// Send request to server and get the respond
-		String response = ClientSocket.send("get,,,");
+		String response = ClientSocket.send(" get,,,");
 		// Verify if request was done correctly
 		if (response.equalsIgnoreCase("")) {
 			return false;
